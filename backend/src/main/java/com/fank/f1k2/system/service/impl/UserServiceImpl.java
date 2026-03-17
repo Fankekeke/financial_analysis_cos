@@ -1,9 +1,7 @@
 package com.fank.f1k2.system.service.impl;
 
 import cn.hutool.core.date.DateUtil;
-import com.fank.f1k2.business.entity.StaffInfo;
 import com.fank.f1k2.business.entity.UserInfo;
-import com.fank.f1k2.business.service.IStaffInfoService;
 import com.fank.f1k2.business.service.IUserInfoService;
 import com.fank.f1k2.common.domain.F1k2Constant;
 import com.fank.f1k2.common.domain.QueryRequest;
@@ -48,9 +46,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private UserRoleService userRoleService;
     @Autowired
     private UserManager userManager;
-
-    @Autowired
-    private IStaffInfoService staffInfoService;
 
     @Autowired
     private IUserInfoService userInfoService;
@@ -204,54 +199,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 将用户相关信息保存到 Redis中
         userManager.loadUserRedisCache(user);
 
-    }
-
-    /**
-     * 注册党员
-     *
-     * @param staffInfo 党员信息
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void registerStaff(StaffInfo staffInfo) throws Exception {
-        User user = new User();
-        user.setPassword(MD5Util.encrypt(staffInfo.getCode(), "1234qwer"));
-        user.setUsername(staffInfo.getCode());
-        user.setCreateTime(new Date());
-        user.setStatus(User.STATUS_VALID);
-        user.setSsex(User.SEX_UNKNOW);
-        user.setAvatar(User.DEFAULT_AVATAR);
-        user.setDescription("注册党员");
-        user.setName(staffInfo.getName());
-        user.setImages(staffInfo.getImages());
-        user.setRoleFlag("2");
-        this.save(user);
-
-        UserRole ur = new UserRole();
-        ur.setUserId(user.getUserId());
-        ur.setRoleId(76L);
-        this.userRoleMapper.insert(ur);
-
-        staffInfo.setSysUserId(Math.toIntExact(user.getUserId()));
-        staffInfoService.save(staffInfo);
-
-        UserInfo userInfo = new UserInfo();
-        userInfo.setUserId(user.getUserId());
-        userInfo.setCode(staffInfo.getCode());
-        userInfo.setName(staffInfo.getName());
-        userInfo.setMail(staffInfo.getEmail());
-        userInfo.setBirthday(staffInfo.getBirthDate());
-        userInfo.setPhone(staffInfo.getPhone());
-        userInfo.setImages(staffInfo.getImages());
-        userInfo.setCreateDate(staffInfo.getCreateDate());
-        userInfo.setType("2");
-        userInfo.setUserStaffId(staffInfo.getId());
-        userInfoService.save(userInfo);
-
-        // 创建用户默认的个性化配置
-        userConfigService.initDefaultUserConfig(String.valueOf(user.getUserId()));
-        // 将用户相关信息保存到 Redis中
-        userManager.loadUserRedisCache(user);
     }
 
     @Override

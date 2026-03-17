@@ -1,9 +1,8 @@
 package com.fank.f1k2.business.entity;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.io.Serializable;
-
-import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -11,14 +10,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 
 /**
- * 用户收藏
+ * 负债管理
  *
  * @author FanK fan1ke2ke@gmail.com（悲伤的橘子树）
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class UserFavorites implements Serializable {
+public class Debts implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,32 +28,33 @@ public class UserFavorites implements Serializable {
     private Integer id;
 
 
-    /**
-     * 所属用户
-     */
-    private Integer userId;
+    private Long userId;
 
     /**
-     * 题目ID
+     * 如：房贷、借张三款
      */
-    private Integer topicId;
+    private String debtName;
+
+    private BigDecimal totalAmount;
+
+    private BigDecimal remainingAmount;
 
     /**
-     * 创建时间
+     * 年利率
      */
-    private String createdAt;
+    private BigDecimal interestRate;
 
-    @TableField(exist = false)
-    private String desc;
+    /**
+     * 还款截止日
+     */
+    private LocalDate dueDate;
 
-    @TableField(exist = false)
-    private String tags;
+    /**
+     * 单次或每月
+     */
+    private String debtType;
 
-    @TableField(exist = false)
-    private String userName;
-
-    @TableField(exist = false)
-    private String questionType;
+    private LocalDate createdAt;
 
 
 }

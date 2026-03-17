@@ -1,9 +1,7 @@
 package com.fank.f1k2.business.entity;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.io.Serializable;
-
-import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -11,14 +9,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 
 /**
- * 用户笔记
+ * 存款账户信息
  *
  * @author FanK fan1ke2ke@gmail.com（悲伤的橘子树）
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class UserNotes implements Serializable {
+public class Accounts implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,28 +27,26 @@ public class UserNotes implements Serializable {
     private Integer id;
 
 
-    /**
-     * 所属用户
-     */
-    private Integer userId;
+    private Long userId;
 
     /**
-     * 所属分类
+     * 名称如：招行卡1、支付宝
      */
-    private String sortType;
+    private String accountName;
+
+    private String accountType;
 
     /**
-     * 笔记内容
+     * 实时余额
      */
-    private String content;
+    private BigDecimal balance;
+
+    private String remark;
 
     /**
-     * 更新时间
+     * 1-正常, 0-注销
      */
-    private String createdAt;
-
-    @TableField(exist = false)
-    private String userName;
+    private Integer status;
 
 
 }

@@ -1,9 +1,7 @@
 package com.fank.f1k2.business.entity;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.io.Serializable;
-
-import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -11,14 +9,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 
 /**
- * 顶踩投票记录表
+ * 预算管理
  *
  * @author FanK fan1ke2ke@gmail.com（悲伤的橘子树）
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class ContentVotes implements Serializable {
+public class Budgets implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,31 +27,37 @@ public class ContentVotes implements Serializable {
     private Integer id;
 
 
-    /**
-     * 投票用户ID
-     */
-    private Integer userId;
+    private Long userId;
 
     /**
-     * 回答ID
+     * NULL表示总预算
      */
-    private Integer answerId;
+    private Long categoryId;
 
     /**
-     * 投票类型：1-顶(赞同), 0-踩(反对)
+     * 预算限额
      */
-    private Integer voteType;
+    private BigDecimal amountLimit;
 
     /**
-     * 投票时间
+     * 预算周期，如 2024-03
      */
-    private String createdAt;
+    private String period;
 
-    @TableField(exist = false)
-    private String userName;
+    /**
+     * 预警阈值，如0.8
+     */
+    private BigDecimal alertThreshold;
 
-    @TableField(exist = false)
-    private String title;
+    /**
+     * 是否已触发80%预警
+     */
+    private Integer isAlerted80;
+
+    /**
+     * 是否已触发100%预警
+     */
+    private Integer isAlerted100;
 
 
 }

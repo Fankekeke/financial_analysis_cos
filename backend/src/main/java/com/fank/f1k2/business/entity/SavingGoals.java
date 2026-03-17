@@ -1,5 +1,7 @@
 package com.fank.f1k2.business.entity;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -8,14 +10,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 
 /**
- * 题目选项表
+ * 存钱计划
  *
  * @author FanK fan1ke2ke@gmail.com（悲伤的橘子树）
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class CollectionOptions implements Serializable {
+public class SavingGoals implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -26,20 +28,27 @@ public class CollectionOptions implements Serializable {
     private Integer id;
 
 
-    /**
-     * 关联的题目ID
-     */
-    private String questionCode;
+    private Long userId;
 
     /**
-     * 选项内容
+     * 旅游基金、首付等
      */
-    private String content;
+    private String goalName;
+
+    private BigDecimal targetAmount;
+
+    private BigDecimal currentAmount;
+
+    private LocalDate startDate;
+
+    private LocalDate endDate;
 
     /**
-     * 是否为正确答案：0-否, 1-是
+     * 系统测算的每月需存金额
      */
-    private Integer isCorrect;
+    private BigDecimal monthlySuggestion;
+
+    private String status;
 
 
 }
