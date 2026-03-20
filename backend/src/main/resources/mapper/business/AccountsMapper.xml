@@ -2,4 +2,31 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fank.f1k2.business.dao.AccountsMapper">
 
+    <!-- 分页获取存款账户信息 -->
+    <select id="queryPage" resultType="java.util.LinkedHashMap">
+        select ac.id,
+        ac.user_id,
+        ac.account_name,
+        ac.account_type,
+        ac.balance,
+        ac.remark,
+        ac.status,
+
+        ui.name as userName,
+        ui.images as userImages
+
+        from accounts ac
+        left join user_info ui ON (ui.id = ac.user_id)
+        where 1 = 1
+        <if test="queryFrom.accountName != null and queryFrom.accountName != ''">
+            AND ac.account_name LIKE CONCAT('%',#{queryFrom.accountName},'%')
+        </if>
+        <if test="queryFrom.accountType != null and queryFrom.accountType != ''">
+            AND ac.account_type LIKE CONCAT('%',#{queryFrom.accountType},'%')
+        </if>
+        <if test="queryFrom.userName != null and queryFrom.userName != ''">
+            AND ui.name LIKE CONCAT('%',#{queryFrom.userName},'%')
+        </if>
+        order by ac.id desc
+    </select>
 </mapper>

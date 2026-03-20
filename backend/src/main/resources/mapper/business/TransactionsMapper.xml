@@ -2,4 +2,37 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fank.f1k2.business.dao.TransactionsMapper">
 
+    <select id="queryPage" resultType="java.util.LinkedHashMap">
+        select tr.id,
+        tr.user_id,
+        tr.account_id,
+        tr.category_id,
+        tr.amount,
+        tr.transaction_type,
+        tr.transaction_time,
+        tr.remark,
+        tr.created_at,
+
+        ui.name as userName,
+        ui.images as userImages,
+
+        ac.account_name as accountName,
+        ac.account_type as accountType,
+
+        ca.sub_name as categoryName
+
+        from transactions tr
+        left join user_info ui on (ui.id = tr.user_id)
+        left join accounts ac on (ac.id = tr.account_id)
+        left join categories ca on (ca.id = tr.category_id)
+        where 1 = 1
+        <if test="queryFrom.userName != null and queryFrom.userName != ''">
+            AND ui.name LIKE CONCAT('%',#{queryFrom.userName},'%')
+        </if>
+        <if test="queryFrom.transactionType != null and queryFrom.transactionType != ''">
+            AND tr.transaction_type = #{queryFrom.transactionType}
+        </if>
+        order by tr.id desc
+
+    </select>
 </mapper>

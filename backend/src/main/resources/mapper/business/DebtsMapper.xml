@@ -2,4 +2,29 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fank.f1k2.business.dao.DebtsMapper">
 
+    <select id="queryPage" resultType="java.util.LinkedHashMap">
+        select de.id,
+        de.user_id,
+        de.debt_name,
+        de.total_amount,
+        de.remaining_amount,
+        de.interest_rate,
+        de.due_date,
+        de.debt_type,
+        de.created_at,
+
+        ui.name as userName,
+        ui.images as userImages
+        from debts de
+        left join user_info ui
+        on (ui.id = de.user_id)
+        where 1 = 1
+        <if test="queryFrom.userName != null and queryFrom.userName != ''">
+            AND ui.name LIKE CONCAT('%',#{queryFrom.userName},'%')
+        </if>
+        <if test="queryFrom.debtName != null and queryFrom.debtName != ''">
+            AND de.debt_name LIKE CONCAT('%',#{queryFrom.debtName},'%')
+        </if>
+        order by de.id desc
+    </select>
 </mapper>
