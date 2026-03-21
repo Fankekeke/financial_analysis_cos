@@ -2,6 +2,8 @@ package com.fank.f1k2.business.entity;
 
 import java.math.BigDecimal;
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -46,7 +48,10 @@ public class Accounts implements Serializable {
     /**
      * 1-正常, 0-注销
      */
-    private Integer status;
+    private String status;
+
+    @TableField(exist = false)
+    private String userName;
 
 
 }

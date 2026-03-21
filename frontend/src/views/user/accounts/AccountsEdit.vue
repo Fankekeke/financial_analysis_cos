@@ -1,11 +1,11 @@
 <template>
-  <a-modal v-model="show" title="新增存款账户" @cancel="onClose" :width="650">
+  <a-modal v-model="show" title="修改存款账户" @cancel="onClose" :width="650">
     <template slot="footer">
       <a-button key="back" @click="onClose">
         取消
       </a-button>
       <a-button key="submit" type="primary" :loading="loading" @click="handleSubmit">
-        提交
+        修改
       </a-button>
     </template>
     <a-form :form="form" layout="vertical">
@@ -64,28 +64,6 @@
             ]"/>
           </a-form-item>
         </a-col>
-<!--        <a-col :span="24">-->
-<!--          <a-form-item label='图册' v-bind="formItemLayout">-->
-<!--            <a-upload-->
-<!--              name="avatar"-->
-<!--              action="http://127.0.0.1:9527/file/fileUpload/"-->
-<!--              list-type="picture-card"-->
-<!--              :file-list="fileList"-->
-<!--              @preview="handlePreview"-->
-<!--              @change="picHandleChange"-->
-<!--            >-->
-<!--              <div v-if="fileList.length < 8">-->
-<!--                <a-icon type="plus" />-->
-<!--                <div class="ant-upload-text">-->
-<!--                  Upload-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </a-upload>-->
-<!--            <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">-->
-<!--              <img alt="example" style="width: 100%" :src="previewImage" />-->
-<!--            </a-modal>-->
-<!--          </a-form-item>-->
-<!--        </a-col>-->
       </a-row>
     </a-form>
   </a-modal>
@@ -106,9 +84,9 @@ const formItemLayout = {
   wrapperCol: { span: 24 }
 }
 export default {
-  name: 'BulletinAdd',
+  name: 'BulletinEdit',
   props: {
-    bulletinAddVisiable: {
+    bulletinEditVisiable: {
       default: false
     }
   },
@@ -118,7 +96,7 @@ export default {
     }),
     show: {
       get: function () {
-        return this.bulletinAddVisiable
+        return this.bulletinEditVisiable
       },
       set: function () {
       }
@@ -126,6 +104,7 @@ export default {
   },
   data () {
     return {
+      rowId: null,
       formItemLayout,
       form: this.$form.createForm(this),
       loading: false,
@@ -148,6 +127,34 @@ export default {
     picHandleChange ({ fileList }) {
       this.fileList = fileList
     },
+    imagesInit (images) {
+      if (images !== null && images !== '') {
+        let imageList = []
+        images.split(',').forEach((image, index) => {
+          imageList.push({uid: index, name: image, status: 'done', url: 'http://127.0.0.1:9527/imagesWeb/' + image})
+        })
+        this.fileList = imageList
+      }
+    },
+    setFormValues ({...bulletin}) {
+      this.rowId = bulletin.id
+      let fields = ['accountName', 'accountType', 'status', 'balance', 'remark', 'publisher']
+      let obj = {}
+      Object.keys(bulletin).forEach((key) => {
+        if (key === 'images') {
+          this.fileList = []
+          this.imagesInit(bulletin['images'])
+        }
+        if (key === 'rackUp' || key === 'type') {
+          bulletin[key] = bulletin[key].toString()
+        }
+        if (fields.indexOf(key) !== -1) {
+          this.form.getFieldDecorator(key)
+          obj[key] = bulletin[key]
+        }
+      })
+      this.form.setFieldsValue(obj)
+    },
     reset () {
       this.loading = false
       this.form.resetFields()
@@ -160,14 +167,18 @@ export default {
       // 获取图片List
       let images = []
       this.fileList.forEach(image => {
-        images.push(image.response)
+        if (image.response !== undefined) {
+          images.push(image.response)
+        } else {
+          images.push(image.name)
+        }
       })
       this.form.validateFields((err, values) => {
+        values.id = this.rowId
         values.images = images.length > 0 ? images.join(',') : null
-        values.userId = this.currentUser.userId
         if (!err) {
           this.loading = true
-          this.$post('/business/accounts', {
+          this.$put('/business/accounts', {
             ...values
           }).then((r) => {
             this.reset()

@@ -45,6 +45,18 @@ public class AccountsController {
     }
 
     /**
+     * 查询存款账户信息列表
+     *
+     * @param userId 用户ID
+     * @return 列表
+     */
+    @GetMapping("/queryAccountsByUserId")
+    public R queryAccountsByUserId(Integer userId) {
+        UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, userId));
+        return R.ok(bulletinInfoService.list(Wrappers.<Accounts>lambdaQuery().eq(Accounts::getUserId, userInfo.getId())));
+    }
+
+    /**
      * 查询存款账户信息详情
      *
      * @param id 主键ID
