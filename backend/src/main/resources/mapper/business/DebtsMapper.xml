@@ -12,6 +12,7 @@
         de.due_date,
         de.debt_type,
         de.created_at,
+        de.content,
 
         ui.name as userName,
         ui.images as userImages
@@ -24,6 +25,9 @@
         </if>
         <if test="queryFrom.debtName != null and queryFrom.debtName != ''">
             AND de.debt_name LIKE CONCAT('%',#{queryFrom.debtName},'%')
+        </if>
+        <if test="queryFrom.userId != null and queryFrom.userId != ''">
+            AND ui.user_id = #{queryFrom.userId}
         </if>
         order by de.id desc
     </select>

@@ -75,6 +75,7 @@ public class DebtsController {
     public R save(Debts addFrom) {
         UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, addFrom.getUserId()));
         addFrom.setUserId(Long.valueOf(userInfo.getId()));
+        addFrom.setCreatedAt(DateUtil.formatDateTime(new Date()));
         return R.ok(bulletinInfoService.save(addFrom));
     }
 

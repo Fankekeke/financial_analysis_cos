@@ -4,14 +4,21 @@
 
     <select id="queryPage" resultType="java.util.LinkedHashMap">
         SELECT
-            sub.id,
-            sub.name AS sub_name,
-            p.name AS parent_name,
-            sub.type,
-            sub.icon
+        sub.id,
+        sub.name AS name,
+        sub.type,
+        sub.icon,
+        ui.name as userName,
+        ui.images as userImages
         FROM categories sub
-                 LEFT JOIN categories p ON sub.parent_id = p.id
-        WHERE sub.parent_id != 0
-        ORDER BY sub.id DESC;
+        left join user_info ui on (ui.id = sub.user_id)
+        WHERE 1 = 1
+        <if test="queryFrom.userName != null and queryFrom.userName != ''">
+            AND ui.name LIKE CONCAT('%',#{queryFrom.userName},'%')
+        </if>
+        <if test="queryFrom.userId != null and queryFrom.userId != ''">
+            AND ui.user_id = #{queryFrom.userId}
+        </if>
+        ORDER BY sub.id DESC
     </select>
 </mapper>

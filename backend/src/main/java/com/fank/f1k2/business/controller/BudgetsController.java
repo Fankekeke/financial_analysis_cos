@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fank.f1k2.business.entity.UserInfo;
 import com.fank.f1k2.business.service.IUserInfoService;
+import com.fank.f1k2.common.exception.F1k2Exception;
 import com.fank.f1k2.common.utils.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fank.f1k2.business.entity.Budgets;
@@ -72,10 +73,25 @@ public class BudgetsController {
      * @return 结果
      */
     @PostMapping
-    public R save(Budgets addFrom) {
+    public R save(Budgets addFrom) throws F1k2Exception {
         UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, addFrom.getUserId()));
+        if (userInfo == null) {
+            throw new F1k2Exception("用户不存在");
+        }
         addFrom.setUserId(Long.valueOf(userInfo.getId()));
-        return R.ok(bulletinInfoService.save(addFrom));
+
+        // 添加：根据用户ID和预算周期校验是否存在
+        String currentPeriod = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM"));
+        List<Budgets> existingBudgets = bulletinInfoService.list(Wrappers.<Budgets>lambdaQuery()
+                .eq(Budgets::getUserId, userInfo.getId())
+                .eq(Budgets::getPeriod, currentPeriod));
+
+        if (!existingBudgets.isEmpty()) {
+            throw new F1k2Exception("该预算周期已存在，无法重复创建");
+        }
+
+        boolean result = bulletinInfoService.save(addFrom);
+        return R.ok(result);
     }
 
     /**
@@ -85,8 +101,33 @@ public class BudgetsController {
      * @return 结果
      */
     @PutMapping
-    public R edit(Budgets editFrom) {
-        return R.ok(bulletinInfoService.updateById(editFrom));
+    public R edit(Budgets editFrom) throws F1k2Exception {
+        // 获取原始预算信息
+        Budgets originalBudget = bulletinInfoService.getById(editFrom.getId());
+        if (originalBudget == null) {
+            throw new F1k2Exception("预算不存在");
+        }
+
+        // 获取用户信息
+        UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, editFrom.getUserId()));
+        if (userInfo == null) {
+            throw new F1k2Exception("用户不存在");
+        }
+        editFrom.setUserId(Long.valueOf(userInfo.getId()));
+
+        // 如果预算周期发生变化，需要校验新周期是否已存在
+        if (!originalBudget.getPeriod().equals(editFrom.getPeriod())) {
+            List<Budgets> existingBudgets = bulletinInfoService.list(Wrappers.<Budgets>lambdaQuery()
+                    .eq(Budgets::getUserId, userInfo.getId())
+                    .eq(Budgets::getPeriod, editFrom.getPeriod()));
+
+            if (!existingBudgets.isEmpty()) {
+                throw new F1k2Exception("该预算周期已存在，无法重复创建");
+            }
+        }
+
+        boolean result = bulletinInfoService.updateById(editFrom);
+        return R.ok(result);
     }
 
     /**

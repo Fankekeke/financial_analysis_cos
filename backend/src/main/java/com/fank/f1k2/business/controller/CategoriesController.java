@@ -45,6 +45,17 @@ public class CategoriesController {
     }
 
     /**
+     * 查询分类与标签列表
+     *
+     * @return 列表
+     */
+    @GetMapping("/queryCategoryListByUserId")
+    public R queryCategoryListByUserId(Integer userId) {
+        UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, userId));
+    	return R.ok(bulletinInfoService.list(Wrappers.<Categories>lambdaQuery().eq(Categories::getUserId, userInfo.getId())));
+    }
+
+    /**
      * 查询分类与标签详情
      *
      * @param id 主键ID

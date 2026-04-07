@@ -25,6 +25,9 @@
         <if test="queryFrom.goalName != null and queryFrom.goalName != ''">
             AND sg.goal_name LIKE CONCAT('%',#{queryFrom.goalName},'%')
         </if>
+        <if test="queryFrom.userId != null and queryFrom.userId != ''">
+            AND ui.user_id = #{queryFrom.userId}
+        </if>
         order by sg.id desc
 
     </select>

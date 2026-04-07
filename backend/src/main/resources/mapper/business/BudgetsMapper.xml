@@ -9,8 +9,8 @@
         bu.amount_limit,
         bu.period,
         bu.alert_threshold,
-        bu.is_alerted_80,
-        bu.is_alerted_100,
+        bu.is_alerted80,
+        bu.is_alerted100,
 
         ui.name as userName,
         ui.images as userImages
@@ -20,6 +20,9 @@
         where 1 = 1
         <if test="queryFrom.userName != null and queryFrom.userName != ''">
             AND ui.name LIKE CONCAT('%',#{queryFrom.userName},'%')
+        </if>
+        <if test="queryFrom.userId != null and queryFrom.userId != ''">
+            AND ui.user_id = #{queryFrom.userId}
         </if>
         order by bu.id desc
     </select>

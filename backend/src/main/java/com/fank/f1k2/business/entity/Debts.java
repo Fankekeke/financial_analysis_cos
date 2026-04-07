@@ -3,6 +3,8 @@ package com.fank.f1k2.business.entity;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -47,14 +49,17 @@ public class Debts implements Serializable {
     /**
      * 还款截止日
      */
-    private LocalDate dueDate;
+    private String dueDate;
 
     /**
      * 单次或每月
      */
     private String debtType;
 
-    private LocalDate createdAt;
+    private String createdAt;
+    private String content;
 
+    @TableField(exist = false)
+    private String userName;
 
 }

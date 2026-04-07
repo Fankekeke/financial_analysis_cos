@@ -3,6 +3,8 @@ package com.fank.f1k2.business.entity;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -39,9 +41,9 @@ public class SavingGoals implements Serializable {
 
     private BigDecimal currentAmount;
 
-    private LocalDate startDate;
+    private String startDate;
 
-    private LocalDate endDate;
+    private String endDate;
 
     /**
      * 系统测算的每月需存金额
@@ -50,5 +52,6 @@ public class SavingGoals implements Serializable {
 
     private String status;
 
-
+    @TableField(exist = false)
+    private String userName;
 }

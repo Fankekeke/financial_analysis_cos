@@ -3,6 +3,8 @@ package com.fank.f1k2.business.entity;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -45,7 +47,7 @@ public class FixedAssets implements Serializable {
     /**
      * 购买时间
      */
-    private LocalDate purchaseDate;
+    private String purchaseDate;
 
     /**
      * 当前估值（如黄金、房产会波动）
@@ -59,5 +61,6 @@ public class FixedAssets implements Serializable {
 
     private String remark;
 
-
+    @TableField(exist = false)
+    private String userName;
 }

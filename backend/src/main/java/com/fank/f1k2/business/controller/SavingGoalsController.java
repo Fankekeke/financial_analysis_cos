@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fank.f1k2.business.entity.UserInfo;
 import com.fank.f1k2.business.service.IUserInfoService;
+import com.fank.f1k2.common.exception.F1k2Exception;
 import com.fank.f1k2.common.utils.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fank.f1k2.business.entity.SavingGoals;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -72,10 +75,52 @@ public class SavingGoalsController {
      * @return 结果
      */
     @PostMapping
-    public R save(SavingGoals addFrom) {
+    public R save(SavingGoals addFrom) throws F1k2Exception {
         UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, addFrom.getUserId()));
+        if (userInfo == null) {
+            throw new F1k2Exception("用户不存在");
+        }
         addFrom.setUserId(Long.valueOf(userInfo.getId()));
-        return R.ok(bulletinInfoService.save(addFrom));
+
+        // 校验开始时间和结束时间
+        if (addFrom.getStartDate() == null || addFrom.getEndDate() == null) {
+            throw new F1k2Exception("开始时间和结束时间不能为空");
+        }
+
+        if (addFrom.getTargetAmount() == null || addFrom.getTargetAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new F1k2Exception("目标金额必须大于0");
+        }
+
+        try {
+            LocalDate start = LocalDate.parse(addFrom.getStartDate());
+            LocalDate end = LocalDate.parse(addFrom.getEndDate());
+
+            if (!end.isAfter(start)) {
+                throw new F1k2Exception("结束时间必须晚于开始时间");
+            }
+
+            // 计算月份数（向上取整）
+            long months = java.time.temporal.ChronoUnit.MONTHS.between(
+                    start.withDayOfMonth(1),
+                    end.withDayOfMonth(1).plusMonths(1)
+            );
+
+            if (months < 1) {
+                months = 1;
+            }
+
+            // 计算每月建议存款金额
+            BigDecimal monthlySuggestion = addFrom.getTargetAmount()
+                    .divide(new BigDecimal(months), 2, BigDecimal.ROUND_HALF_UP);
+
+            addFrom.setMonthlySuggestion(monthlySuggestion);
+
+        } catch (Exception e) {
+            throw new F1k2Exception("日期格式错误，请使用YYYY-MM-DD格式");
+        }
+
+        boolean result = bulletinInfoService.save(addFrom);
+        return R.ok(result);
     }
 
     /**
@@ -85,8 +130,46 @@ public class SavingGoalsController {
      * @return 结果
      */
     @PutMapping
-    public R edit(SavingGoals editFrom) {
-        return R.ok(bulletinInfoService.updateById(editFrom));
+    public R edit(SavingGoals editFrom) throws F1k2Exception {
+        // 校验开始时间和结束时间
+        if (editFrom.getStartDate() == null || editFrom.getEndDate() == null) {
+            throw new F1k2Exception("开始时间和结束时间不能为空");
+        }
+
+        if (editFrom.getTargetAmount() == null || editFrom.getTargetAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new F1k2Exception("目标金额必须大于0");
+        }
+
+        try {
+            LocalDate start = LocalDate.parse(editFrom.getStartDate());
+            LocalDate end = LocalDate.parse(editFrom.getEndDate());
+
+            if (!end.isAfter(start)) {
+                throw new F1k2Exception("结束时间必须晚于开始时间");
+            }
+
+            // 计算月份数（向上取整）
+            long months = java.time.temporal.ChronoUnit.MONTHS.between(
+                    start.withDayOfMonth(1),
+                    end.withDayOfMonth(1).plusMonths(1)
+            );
+
+            if (months < 1) {
+                months = 1;
+            }
+
+            // 计算每月建议存款金额
+            BigDecimal monthlySuggestion = editFrom.getTargetAmount()
+                    .divide(new BigDecimal(months), 2, BigDecimal.ROUND_HALF_UP);
+
+            editFrom.setMonthlySuggestion(monthlySuggestion);
+
+        } catch (Exception e) {
+            throw new F1k2Exception("日期格式错误，请使用YYYY-MM-DD格式");
+        }
+
+        boolean result = bulletinInfoService.updateById(editFrom);
+        return R.ok(result);
     }
 
     /**

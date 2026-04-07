@@ -3,6 +3,8 @@ package com.fank.f1k2.business.entity;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -43,9 +45,11 @@ public class ProjectAssets implements Serializable {
     /**
      * 购买时间
      */
-    private LocalDate purchaseDate;
+    private String purchaseDate;
 
     private String remark;
 
+    @TableField(exist = false)
+    private String userName;
 
 }

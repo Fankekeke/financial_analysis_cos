@@ -21,6 +21,9 @@
         <if test="queryFrom.assetName != null and queryFrom.assetName != ''">
             AND pa.asset_name LIKE CONCAT('%',#{queryFrom.assetName},'%')
         </if>
+        <if test="queryFrom.userId != null and queryFrom.userId != ''">
+            AND ui.user_id = #{queryFrom.userId}
+        </if>
         ORDER BY pa.id DESC
     </select>
 </mapper>

@@ -1,6 +1,8 @@
 package com.fank.f1k2.business.entity;
 
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -44,6 +46,9 @@ public class Categories implements Serializable {
      * 支持二级分类
      */
     private Long parentId;
+
+    @TableField(exist = false)
+    private Long userName;
 
 
 }
