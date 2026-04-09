@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fank.f1k2.business.dao.ProductBrowseRecordMapper">
+
+    <select id="queryPage" resultType="java.util.LinkedHashMap">
+        SELECT
+        pbr.id,
+        pbr.user_id,
+        pbr.product_id,
+        pbr.product_name,
+        pbr.product_type,
+        pbr.browse_time,
+        pbr.browse_duration,
+        pbr.ip_address,
+        pbr.created_at,
+
+        ui.NAME AS userName,
+        ui.images AS userImages,
+
+        wmp.product_name,
+        wmp.product_type,
+        wmp.risk_level
+        FROM
+        product_browse_record pbr
+        LEFT JOIN user_info ui ON (ui.id = pbr.user_id)
+        LEFT JOIN wealth_management_product wmp ON (wmp.id = pbr.product_id)
+        WHERE
+        1 = 1
+        <if test="queryFrom.userName != null and queryFrom.userName != ''">
+            AND ui.name LIKE CONCAT('%',#{queryFrom.userName},'%')
+        </if>
+        <if test="queryFrom.productName != null and queryFrom.productName != ''">
+            AND wmp.product_name LIKE CONCAT('%',#{queryFrom.productName},'%')
+        </if>
+        <if test="queryFrom.userId != null and queryFrom.userId != ''">
+            AND ui.user_id = #{queryFrom.userId}
+        </if>
+        ORDER BY
+        pbr.created_at DESC
+    </select>
+</mapper>

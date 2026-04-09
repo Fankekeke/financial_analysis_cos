@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fank.f1k2.business.dao.WealthManagementProductMapper">
+
+    <select id="queryPage" resultType="java.util.LinkedHashMap">
+        SELECT
+            id,
+            product_code,
+            product_name,
+            product_type,
+            risk_level,
+            issuer,
+            expected_return_rate,
+            min_investment,
+            max_investment,
+            investment_period,
+            start_date,
+            end_date,
+            product_status,
+            description,
+            features,
+            purchase_rule,
+            redemption_rule,
+            fee_rate,
+            management_fee,
+            total_scale,
+            remaining_scale,
+            sort_order,
+            cover_image,
+            detail_images,
+            created_by,
+            created_at,
+        FROM
+            wealth_management_product
+        WHERE
+            1 = 1
+        ORDER BY
+            created_at DESC
+    </select>
+</mapper>

@@ -174,7 +174,7 @@ export default {
             case '1':
               return <a-tag color="#48ad20">用户</a-tag>
             case '2':
-              return <a-tag color="#2eabff">党员</a-tag>
+              return <a-tag color="#2eabff">用户</a-tag>
             default:
               return '- -'
           }

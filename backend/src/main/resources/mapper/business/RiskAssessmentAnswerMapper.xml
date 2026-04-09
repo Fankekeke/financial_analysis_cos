@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fank.f1k2.business.dao.RiskAssessmentAnswerMapper">
+
+    <select id="queryPage" resultType="java.util.LinkedHashMap">
+        SELECT
+        raa.id,
+        raa.user_id,
+        raa.questionnaire_id,
+        raa.questionnaire_name,
+        raa.total_score,
+        raa.risk_level,
+        raa.risk_level_code,
+        raa.answer_time,
+        raa.duration,
+        raa.ip_address,
+        raa.status,
+        raa.created_at,
+
+        ui.NAME AS userName,
+        ui.images AS userImages,
+
+        raq.questionnaire_name,
+        raq.questionnaire_version,
+        raq.description,
+        raq.total_score,
+        raq.passing_score
+        FROM
+        risk_assessment_answer raa
+        LEFT JOIN user_info ui ON (ui.id = raa.user_id)
+        LEFT JOIN risk_assessment_questionnaire raq ON (raq.id = raa.questionnaire_id)
+        WHERE
+        1 = 1
+        <if test="queryFrom.userName != null and queryFrom.userName != ''">
+            AND ui.name LIKE CONCAT('%',#{queryFrom.userName},'%')
+        </if>
+        <if test="queryFrom.userId != null and queryFrom.userId != ''">
+            AND ui.user_id = #{queryFrom.userId}
+        </if>
+        <if test="queryFrom.questionnaireName != null and queryFrom.questionnaireName != ''">
+            AND questionnaire_name LIKE CONCAT('%',#{queryFrom.questionnaireName},'%')
+        </if>
+        ORDER BY
+        aq.created_at DESC
+    </select>
+</mapper>

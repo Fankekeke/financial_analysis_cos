@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fank.f1k2.business.dao.ProductIncomeRecordMapper">
+
+    <select id="queryPage" resultType="java.util.LinkedHashMap">
+        SELECT
+        pbr.id,
+        pbr.user_id,
+        pbr.product_id,
+        pbr.product_name,
+        pbr.product_type,
+        pbr.investment_amount,
+        pbr.income_amount,
+        pbr.income_rate,
+        pbr.income_date,
+        pbr.income_type,
+        pbr.status,
+        pbr.remark,
+        pbr.created_at,
+        pbr.updated_at,
+
+        wmp.product_name,
+        wmp.product_type,
+        wmp.risk_level
+        FROM
+        product_income_record pir
+        LEFT JOIN wealth_management_product wmp ON (wmp.id = pir.product_id)
+        WHERE
+        1 = 1
+        <if test="queryFrom.productName != null and queryFrom.productName != ''">
+            AND wmp.product_name LIKE CONCAT('%',#{queryFrom.productName},'%')
+        </if>
+        ORDER BY
+        pir.created_at DESC
+    </select>
+</mapper>
