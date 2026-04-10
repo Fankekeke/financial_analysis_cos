@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model="show" title="新增预算" @cancel="onClose" :width="800">
+  <a-modal v-model="show" title="新增预算" @cancel="onClose" :width="650">
     <template slot="footer">
       <a-button key="back" @click="onClose">
         取消
@@ -11,74 +11,96 @@
     <a-form :form="form" layout="vertical">
       <a-row :gutter="20">
         <a-col :span="12">
-          <a-form-item label='预算标题' v-bind="formItemLayout">
-            <a-input v-decorator="[
-            'title',
-            { rules: [{ required: true, message: '请输入名称!' }] }
-            ]"/>
+          <a-form-item label='预算周期' v-bind="formItemLayout">
+            <a-month-picker
+              v-decorator="[
+                'period',
+                { rules: [{ required: true, message: '请选择预算周期!' }] }
+              ]"              style="width: 100%"
+              placeholder="选择年月"
+              format="YYYY-MM"
+            />
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item label='上传人' v-bind="formItemLayout">
-            <a-input v-decorator="[
-            'publisher',
-            { rules: [{ required: true, message: '请输入上传人!' }] }
-            ]"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='预算类型' v-bind="formItemLayout">
-            <a-select v-decorator="[
-              'type',
-              { rules: [{ required: true, message: '请输入预算类型!' }] }
-              ]">
-              <a-select-option value="1">系统预算</a-select-option>
-              <a-select-option value="2">活动通知</a-select-option>
-              <a-select-option value="3">紧急消息</a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='预算状态' v-bind="formItemLayout">
-            <a-select v-decorator="[
-              'rackUp',
-              { rules: [{ required: true, message: '请输入预算状态!' }] }
-              ]">
-              <a-select-option value="0">下架</a-select-option>
-              <a-select-option value="1">已发布</a-select-option>
-            </a-select>
+          <a-form-item label='预算限额' v-bind="formItemLayout">
+            <a-input-number
+              v-decorator="[
+                'amountLimit',
+                { rules: [{ required: true, message: '请输入预算限额!' }] }
+              ]"              style="width: 100%"
+              :precision="2"
+              :min="0"
+              placeholder="请输入预算金额"
+            />
           </a-form-item>
         </a-col>
         <a-col :span="24">
-          <a-form-item label='预算内容' v-bind="formItemLayout">
-            <a-textarea :rows="6" v-decorator="[
+          <a-form-item label='预警阈值' v-bind="formItemLayout">
+            <a-slider
+              v-decorator="[
+                'alertThreshold',
+                { rules: [{ required: true, message: '请选择预警阈值!' }], initialValue: 0.8 }
+              ]"
+              :marks="{0: '0%', 0.5: '50%', 0.8: '80%', 1: '100%'}"
+              :step="0.01"
+              :min="0"
+              :max="1"
+            />
+          </a-form-item>
+        </a-col>
+<!--        <a-col :span="12">-->
+<!--          <a-form-item label='是否触发80%预警' v-bind="formItemLayout">-->
+<!--            <a-select v-decorator="[-->
+<!--              'isAlerted80',-->
+<!--              { rules: [{ required: true, message: '请选择状态!' }], initialValue: 0 }-->
+<!--              ]">-->
+<!--              <a-select-option :value="1">是</a-select-option>-->
+<!--              <a-select-option :value="0">否</a-select-option>-->
+<!--            </a-select>-->
+<!--          </a-form-item>-->
+<!--        </a-col>-->
+<!--        <a-col :span="12">-->
+<!--          <a-form-item label='是否触发100%预警' v-bind="formItemLayout">-->
+<!--            <a-select v-decorator="[-->
+<!--              'isAlerted100',-->
+<!--              { rules: [{ required: true, message: '请选择状态!' }], initialValue: 0 }-->
+<!--              ]">-->
+<!--              <a-select-option :value="1">是</a-select-option>-->
+<!--              <a-select-option :value="0">否</a-select-option>-->
+<!--            </a-select>-->
+<!--          </a-form-item>-->
+<!--        </a-col>-->
+        <a-col :span="24">
+          <a-form-item label='备注' v-bind="formItemLayout">
+            <a-textarea :rows="4" v-decorator="[
             'content',
-             { rules: [{ required: true, message: '请输入名称!' }] }
+             { rules: [{ required: false, message: '请输入备注!' }] }
             ]"/>
           </a-form-item>
         </a-col>
-        <a-col :span="24">
-          <a-form-item label='图册' v-bind="formItemLayout">
-            <a-upload
-              name="avatar"
-              action="http://127.0.0.1:9527/file/fileUpload/"
-              list-type="picture-card"
-              :file-list="fileList"
-              @preview="handlePreview"
-              @change="picHandleChange"
-            >
-              <div v-if="fileList.length < 8">
-                <a-icon type="plus" />
-                <div class="ant-upload-text">
-                  Upload
-                </div>
-              </div>
-            </a-upload>
-            <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
-              <img alt="example" style="width: 100%" :src="previewImage" />
-            </a-modal>
-          </a-form-item>
-        </a-col>
+<!--        <a-col :span="24">-->
+<!--          <a-form-item label='图册' v-bind="formItemLayout">-->
+<!--            <a-upload-->
+<!--              name="avatar"-->
+<!--              action="http://127.0.0.1:9527/file/fileUpload/"-->
+<!--              list-type="picture-card"-->
+<!--              :file-list="fileList"-->
+<!--              @preview="handlePreview"-->
+<!--              @change="picHandleChange"-->
+<!--            >-->
+<!--              <div v-if="fileList.length < 8">-->
+<!--                <a-icon type="plus" />-->
+<!--                <div class="ant-upload-text">-->
+<!--                  Upload-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </a-upload>-->
+<!--            <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">-->
+<!--              <img alt="example" style="width: 100%" :src="previewImage" />-->
+<!--            </a-modal>-->
+<!--          </a-form-item>-->
+<!--        </a-col>-->
       </a-row>
     </a-form>
   </a-modal>
@@ -86,6 +108,8 @@
 
 <script>
 import {mapState} from 'vuex'
+import moment from 'moment'
+moment.locale('zh-cn')
 function getBase64 (file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -157,6 +181,8 @@ export default {
       })
       this.form.validateFields((err, values) => {
         values.images = images.length > 0 ? images.join(',') : null
+        values.userId = this.currentUser.userId
+        values.period =  moment(values.period).format('YYYY-MM')
         if (!err) {
           this.loading = true
           this.$post('/business/budgets', {

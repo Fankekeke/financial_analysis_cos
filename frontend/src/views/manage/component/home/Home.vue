@@ -1,111 +1,143 @@
+
 <template>
-  <div>
-    <a-row style="margin-top: 15px">
-      <a-col :span="24">
-        <div style="background: #ECECEC; padding: 30px;" v-if="user.roleId == 74">
-          <a-row :gutter="16">
-            <a-col :span="6">
-              <a-card hoverable :style="{ boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }">
-                <a-row>
-                  <a-col :span="24" style="font-size: 13px;margin-bottom: 8px;font-family: SimHei">本月订单量</a-col>
-                  <a-col :span="4"><a-icon type="arrow-up" style="font-size: 30px;margin-top: 3px" :style="{ transition: 'transform 0.3s ease', transform: 'translateY(-2px)' }"/></a-col>
-                  <a-col :span="18" style="font-size: 28px;font-weight: 500;font-family: SimHei;">
-                    <span style="color: #ff6600; text-shadow: 0 0 5px rgba(255,102,0,0.3);">{{ titleData.monthOrderNum }}</span>
-                    <span style="font-size: 20px;margin-top: 3px">单</span>
-                  </a-col>
-                </a-row>
-              </a-card>
-            </a-col>
-            <a-col :span="6">
-              <a-card hoverable :style="{ boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }">
-                <a-row>
-                  <a-col :span="24" style="font-size: 13px;margin-bottom: 8px;font-family: SimHei">本月支出</a-col>
-                  <a-col :span="4"><a-icon type="arrow-up" style="font-size: 30px;margin-top: 3px" :style="{ transition: 'transform 0.3s ease', transform: 'translateY(-2px)' }"/></a-col>
-                  <a-col :span="18" style="font-size: 28px;font-weight: 500;font-family: SimHei">
-                    <span style="color: #ff6600; text-shadow: 0 0 5px rgba(255,102,0,0.3);">{{ titleData.monthOrderPrice }}</span>
-                    <span style="font-size: 20px;margin-top: 3px">元</span>
-                  </a-col>
-                </a-row>
-              </a-card>
-            </a-col>
-            <a-col :span="6">
-              <a-card hoverable :style="{ boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }">
-                <a-row>
-                  <a-col :span="24" style="font-size: 13px;margin-bottom: 8px;font-family: SimHei">本年订单量</a-col>
-                  <a-col :span="4"><a-icon type="arrow-up" style="font-size: 30px;margin-top: 3px" :style="{ transition: 'transform 0.3s ease', transform: 'translateY(-2px)' }"/></a-col>
-                  <a-col :span="18" style="font-size: 28px;font-weight: 500;font-family: SimHei">
-                    <span style="color: #ff6600; text-shadow: 0 0 5px rgba(255,102,0,0.3);">{{ titleData.yearOrderNum }}</span>
-                    <span style="font-size: 20px;margin-top: 3px">单</span>
-                  </a-col>
-                </a-row>
-              </a-card>
-            </a-col>
-            <a-col :span="6">
-              <a-card hoverable :style="{ boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }">
-                <a-row>
-                  <a-col :span="24" style="font-size: 13px;margin-bottom: 8px;font-family: SimHei">本年支出</a-col>
-                  <a-col :span="4"><a-icon type="arrow-up" style="font-size: 30px;margin-top: 3px" :style="{ transition: 'transform 0.3s ease', transform: 'translateY(-2px)' }"/></a-col>
-                  <a-col :span="18" style="font-size: 28px;font-weight: 500;font-family: SimHei">
-                    <span style="color: #ff6600; text-shadow: 0 0 5px rgba(255,102,0,0.3);">{{ titleData.yearOrderPrice }}</span>
-                    <span style="font-size: 20px;margin-top: 3px">元</span>
-                  </a-col>
-                </a-row>
-              </a-card>
-            </a-col>
-          </a-row>
-        </div>
-      </a-col>
-    </a-row>
-    <a-row style="margin-top: 15px" v-if="user.roleId == 74">
-      <a-col :span="12">
-        <a-card hoverable :bordered="false" style="width: 100%">
-          <a-skeleton active v-if="loading" />
-          <apexchart  v-if="!loading" type="line" height="300" :options="chartOptions" :series="series"></apexchart>
+  <div class="home-container">
+    <!-- 统计概览 -->
+    <a-row :gutter="16" style="margin-bottom: 24px;color: black">
+      <a-col :span="8">
+        <a-card :bordered="false" style="background: linear-gradient(135deg, #ffffff 0%, #f3f3f3 100%);">
+          <div style="color: black; text-align: center;">
+            <a-icon type="dollar" style="font-size: 28px; margin-bottom: 8px;" />
+            <h3 style="margin: 0;">总资产</h3>
+            <p style="margin: 8px 0 0 0; font-size: 24px; font-weight: bold;">¥{{ formatAmount(homeData.totalAssets) }}</p>
+          </div>
         </a-card>
       </a-col>
-      <a-col :span="12">
-        <a-card hoverable :bordered="false" style="width: 100%">
-          <a-skeleton active v-if="loading" />
-          <apexchart v-if="!loading" type="bar" height="300" :options="chartOptions1" :series="series1"></apexchart>
+      <a-col :span="8">
+        <a-card :bordered="false" style="background: linear-gradient(135deg, #ffffff 0%, #f3f3f3 100%);">
+          <div style="color: black; text-align: center;">
+            <a-icon type="arrow-down" style="font-size: 28px; margin-bottom: 8px;" />
+            <h3 style="margin: 0;">总负债</h3>
+            <p style="margin: 8px 0 0 0; font-size: 24px; font-weight: bold;">¥{{ formatAmount(homeData.totalLiabilities) }}</p>
+          </div>
         </a-card>
       </a-col>
-    </a-row>
-    <a-row :gutter="15">
-      <a-col :span="9" v-if="user.roleId == 74">
-        <a-card hoverable :bordered="false" style="width: 100%;margin-bottom: 10px">
-          <a-skeleton active v-if="loading" />
-          <apexchart v-if="!loading" type="donut" height="270" :options="chartOptions2" :series="series2"></apexchart>
-        </a-card>
-        <a-card hoverable :bordered="false" style="width: 100%">
-          <a-skeleton active v-if="loading" />
-          <apexchart v-if="!loading" type="pie" height="270" :options="chartOptions3" :series="series3"></apexchart>
-        </a-card>
-      </a-col>
-      <a-col :span="15">
-        <a-card hoverable :loading="loading" :bordered="false" title="公告信息">
-          <div style="padding: 0 22px">
-            <a-list item-layout="vertical" :pagination="pagination" :data-source="bulletinList">
-              <a-list-item slot="renderItem" key="item.title" slot-scope="item, index">
-                <template slot="actions">
-              <span key="message">
-                <a-icon type="message" style="margin-right: 8px" />
-                {{ item.date }}
-              </span>
-                </template>
-                <a-list-item-meta :description="item.content" style="font-size: 14px">
-                  <a slot="title">{{ item.title }}</a>
-                </a-list-item-meta>
-              </a-list-item>
-            </a-list>
+      <a-col :span="8">
+        <a-card :bordered="false" style="background: linear-gradient(135deg, #ffffff 0%, #f3f3f3 100%);">
+          <div style="color: black; text-align: center;">
+            <a-icon type="rise" style="font-size: 28px; margin-bottom: 8px;" />
+            <h3 style="margin: 0;">净资产</h3>
+            <p style="margin: 8px 0 0 0; font-size: 24px; font-weight: bold;">¥{{ formatAmount(homeData.totalNetAssets) }}</p>
           </div>
         </a-card>
       </a-col>
     </a-row>
+
+    <!-- 用户统计 -->
+    <a-card title="用户统计" style="margin-bottom: 24px;">
+      <a-table
+        :columns="userColumns"
+        :dataSource="homeData.userStats"
+        :pagination="false"
+        rowKey="userId"
+      >
+        <template slot="netAsset" slot-scope="text, record">
+          ¥{{ formatAmount(text) }}
+        </template>
+        <template slot="fixedAssetValue" slot-scope="text, record">
+          ¥{{ formatAmount(text) }}
+        </template>
+        <template slot="accountBalance" slot-scope="text, record">
+          ¥{{ formatAmount(text) }}
+        </template>
+        <template slot="debtAmount" slot-scope="text, record">
+          ¥{{ formatAmount(text) }}
+        </template>
+      </a-table>
+    </a-card>
+
+    <!-- 平台概览 -->
+    <a-card title="平台概览" style="margin-bottom: 24px;">
+      <a-row :gutter="16">
+        <a-col :span="6">
+          <div style="text-align: center; padding: 16px;">
+            <a-statistic
+              title="用户总数"
+              :value="homeData.userCount"
+              :value-style="{ fontSize: '24px', color: '#3f8600' }"
+            />
+          </div>
+        </a-col>
+        <a-col :span="6">
+          <div style="text-align: center; padding: 16px;">
+            <a-statistic
+              title="交易总数"
+              :value="homeData.totalTransactionCount"
+              :value-style="{ fontSize: '24px', color: '#1890ff' }"
+            />
+          </div>
+        </a-col>
+        <a-col :span="6">
+          <div style="text-align: center; padding: 16px;">
+            <a-statistic
+              title="总收入"
+              :value="homeData.totalIncomeAllTime"
+              :value-style="{ fontSize: '24px', color: '#52c41a' }"
+              suffix="次"
+            />
+          </div>
+        </a-col>
+        <a-col :span="6">
+          <div style="text-align: center; padding: 16px;">
+            <a-statistic
+              title="总支出"
+              :value="homeData.totalExpenseAllTime"
+              :value-style="{ fontSize: '24px', color: '#d4380d' }"
+              suffix="次"
+            />
+          </div>
+        </a-col>
+      </a-row>
+    </a-card>
+
+    <!-- 当月财务 -->
+    <a-card title="当月财务" style="margin-bottom: 24px;">
+      <a-row :gutter="16">
+        <a-col :span="8">
+          <div style="text-align: center; padding: 16px; border-right: 1px solid #e8e8e8;">
+            <a-statistic
+              title="本月收入"
+              :value="homeData.currentMonthIncome"
+              :value-style="{ fontSize: '24px', color: '#52c41a' }"
+              prefix="¥"
+            />
+          </div>
+        </a-col>
+        <a-col :span="8">
+          <div style="text-align: center; padding: 16px; border-right: 1px solid #e8e8e8;">
+            <a-statistic
+              title="本月支出"
+              :value="homeData.currentMonthExpense"
+              :value-style="{ fontSize: '24px', color: '#d4380d' }"
+              prefix="¥"
+            />
+          </div>
+        </a-col>
+        <a-col :span="8">
+          <div style="text-align: center; padding: 16px;">
+            <a-statistic
+              title="本月净收入"
+              :value="homeData.currentMonthNetIncome"
+              :value-style="{ fontSize: '24px', color: homeData.currentMonthNetIncome >= 0 ? '#3f8600' : '#cf1322' }"
+              prefix="¥"
+            />
+          </div>
+        </a-col>
+      </a-row>
+    </a-card>
   </div>
 </template>
 
-<script>
-import {mapState} from 'vuex'
+<script>import {mapState} from 'vuex'
 export default {
   name: 'Home',
   computed: {
@@ -116,189 +148,84 @@ export default {
   },
   data () {
     return {
-      pagination: {
-        onChange: page => {
-          console.log(page)
-        },
-        pageSize: 2
+      homeData: {
+        totalAssets: 0,
+        totalLiabilities: 0,
+        totalNetAssets: 0,
+        userCount: 0,
+        totalTransactionCount: 0,
+        totalIncomeAllTime: 0,
+        totalExpenseAllTime: 0,
+        currentMonthIncome: 0,
+        currentMonthExpense: 0,
+        currentMonthNetIncome: 0,
+        averageIncomePerUser: 0,
+        averageExpensePerUser: 0,
+        userStats: []
       },
-      bulletinList: [],
-      titleData: {
-        orderCode: 0,
-        orderPrice: 0,
-        pharmacyNum: 0,
-        staffNum: 0
-      },
-      loading: false,
-      series: [{
-        name: '收益',
-        data: []
-      }],
-      chartOptions: {
-        chart: {
-          type: 'line',
-          height: 300
+      userColumns: [
+        {
+          title: '用户名',
+          dataIndex: 'userName',
+          key: 'userName',
+          scopedSlots: { customRender: 'userName' }
         },
-        xaxis: {
-          categories: []
+        {
+          title: '账户余额',
+          dataIndex: 'accountBalance',
+          key: 'accountBalance',
+          scopedSlots: { customRender: 'accountBalance' }
         },
-        stroke: {
-          curve: 'stepline'
+        {
+          title: '固定资产价值',
+          dataIndex: 'fixedAssetValue',
+          key: 'fixedAssetValue',
+          scopedSlots: { customRender: 'fixedAssetValue' }
         },
-        dataLabels: {
-          enabled: false
+        {
+          title: '负债金额',
+          dataIndex: 'debtAmount',
+          key: 'debtAmount',
+          scopedSlots: { customRender: 'debtAmount' }
         },
-        title: {
-          text: '近十天支出统计',
-          align: 'left'
-        },
-        markers: {
-          hover: {
-            sizeOffset: 4
-          }
+        {
+          title: '净资产',
+          dataIndex: 'netAsset',
+          key: 'netAsset',
+          scopedSlots: { customRender: 'netAsset' }
         }
-      },
-      series1: [],
-      chartOptions1: {
-        chart: {
-          type: 'bar',
-          height: 300
-        },
-        title: {
-          text: '近十天订单统计',
-          align: 'left'
-        },
-        plotOptions: {
-          bar: {
-            horizontal: false,
-            columnWidth: '55%'
-          }
-        },
-        dataLabels: {
-          enabled: false
-        },
-        stroke: {
-          show: true,
-          width: 2,
-          colors: ['transparent']
-        },
-        xaxis: {
-          categories: []
-        },
-        yaxis: {
-          title: {
-            text: ''
-          }
-        },
-        fill: {
-          opacity: 1
-        },
-        tooltip: {
-          y: {
-            formatter: function (val) {
-              return val + ' 单'
-            }
-          }
-        }
-      },
-      series2: [10, 39, 51],
-      chartOptions2: {
-        chart: {
-          type: 'donut',
-          height: 300
-        },
-        labels: ['电器', '零部件', '焊件'],
-        title: {
-          text: '采购类型价格统计',
-          align: 'left'
-        },
-        responsive: [{
-          breakpoint: 380,
-          options: {
-            chart: {
-              width: 200
-            },
-            legend: {
-              position: 'bottom'
-            }
-          }
-        }]
-      },
-      series3: [10, 39, 51],
-      chartOptions3: {
-        chart: {
-          type: 'pie',
-          height: 300
-        },
-        labels: ['电器', '零部件', '焊件'],
-        title: {
-          text: '采购类型数量统计',
-          align: 'left'
-        },
-        responsive: [{
-          breakpoint: 380,
-          options: {
-            chart: {
-              width: 200
-            },
-            legend: {
-              position: 'bottom'
-            }
-          }
-        }]
-      }
+      ]
     }
   },
   mounted () {
-    console.log(this.user)
-    this.loading = true
-    this.selectHomeData()
-    setTimeout(() => {
-      this.loading = false
-    }, 200)
+    this.queryHomeByAdmin()
   },
   methods: {
-    selectHomeData () {
-      this.$get('/business/order-info/home/data').then((r) => {
-        let titleData = { orderCode: r.data.orderCode, orderPrice: r.data.orderPrice, pharmacyNum: r.data.pharmacyNum, staffNum: r.data.staffNum }
-        this.$emit('setTitle', titleData)
-        this.titleData.monthOrderNum = r.data.monthOrderNum
-        this.titleData.monthOrderPrice = r.data.monthOrderPrice
-        this.titleData.yearOrderNum = r.data.yearOrderNum
-        this.titleData.yearOrderPrice = r.data.yearOrderPrice
-        this.bulletinList = r.data.bulletin
-        let values = []
-        if (r.data.orderNumWithinDays !== null && r.data.orderNumWithinDays.length !== 0) {
-          if (this.chartOptions1.xaxis.categories.length === 0) {
-            console.log(r.data.orderNumWithinDays)
-            this.chartOptions1.xaxis.categories = Array.from(r.data.orderNumWithinDays, ({days}) => days)
-          }
-          let itemData = { name: '订单数', data: Array.from(r.data.orderNumWithinDays, ({count}) => count) }
-          values.push(itemData)
-          this.series1 = values
+    queryHomeByAdmin () {
+      this.$get('/business/web/queryHomeByAdmin').then((r) => {
+        if (r.data.code === 0) {
+          this.homeData = r.data
         }
-        this.series[0].data = Array.from(r.data.orderPriceWithinDays, ({price}) => price)
-        this.chartOptions.xaxis.categories = Array.from(r.data.orderPriceWithinDays, ({days}) => days)
-        if (r.data.orderDrugType.length !== 0) {
-          let series2 = []
-          let series3 = []
-          let chartOptions = []
-          r.data.orderDrugType.forEach(e => {
-            series2.push(e.totalPrice)
-            series3.push(e.totalNum)
-            chartOptions.push(e.typeName)
-          })
-          this.series2 = series2
-          this.series3 = series3
-          this.chartOptions2.labels = chartOptions
-          this.chartOptions3.labels = chartOptions
-        }
+      }).catch(() => {
+        this.$message.error('获取数据失败')
       })
+    },
+    formatAmount(amount) {
+      return parseFloat(amount || 0).toFixed(2)
     }
   }
 }
 </script>
 
-<style scoped>
+<style scoped>.home-container {
+  padding: 24px;
+}
 
+.ant-card {
+  border-radius: 8px;
+}
+
+.ant-statistic-content-value {
+  font-size: 24px !important;
+}
 </style>

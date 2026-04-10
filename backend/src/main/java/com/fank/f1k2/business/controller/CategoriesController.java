@@ -51,8 +51,12 @@ public class CategoriesController {
      */
     @GetMapping("/queryCategoryListByUserId")
     public R queryCategoryListByUserId(Integer userId) {
-        UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, userId));
-    	return R.ok(bulletinInfoService.list(Wrappers.<Categories>lambdaQuery().eq(Categories::getUserId, userInfo.getId())));
+        if (userId == null || userId == 13) {
+            return R.ok(bulletinInfoService.list());
+        } else {
+            UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, userId));
+            return R.ok(bulletinInfoService.list(Wrappers.<Categories>lambdaQuery().eq(Categories::getUserId, userInfo.getId())));
+        }
     }
 
     /**

@@ -7,18 +7,10 @@
           <div :class="advanced ? null: 'fold'">
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="标题"
+                label="所属用户"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.title"/>
-              </a-form-item>
-            </a-col>
-            <a-col :md="6" :sm="24">
-              <a-form-item
-                label="内容"
-                :labelCol="{span: 5}"
-                :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.content"/>
+                <a-input v-model="queryParams.userName"/>
               </a-form-item>
             </a-col>
           </div>
@@ -31,7 +23,7 @@
     </div>
     <div>
       <div class="operator">
-        <a-button type="primary" ghost @click="add">新增</a-button>
+<!--        <a-button type="primary" ghost @click="add">新增</a-button>-->
         <a-button @click="batchDelete">删除</a-button>
 <!--        <a-button @click="batchDelete1">删除</a-button>-->
       </div>
@@ -131,16 +123,83 @@ export default {
     }),
     columns () {
       return [{
-        title: '标题',
-        dataIndex: 'title',
+        title: '用户名',
+        dataIndex: 'userName',
+        customRender: (text, record, index) => {
+          if (!text) return '- -'
+          return (
+            <div style="display: flex; align-items: center;">
+              <a-avatar
+                size="72"
+                src={ record.userImages ? 'http://127.0.0.1:9527/imagesWeb/' + record.userImages : null }
+                icon={ record.userImages ? null : 'user' }
+                style="margin-right: 15px;"
+              />
+              <div>
+                <div>{text}</div>
+                <div style="color: #999; font-size: 12px;">{record.phone}</div>
+              </div>
+            </div>
+          )
+        },
+        width: 250,
         ellipsis: true
       }, {
-        title: '公告内容',
-        dataIndex: 'content',
+        title: '总得分',
+        dataIndex: 'totalScore',
+        customRender: (text, row, index) => {
+          if (text !== null && text !== undefined) {
+            return <span style="color: #1890ff; font-weight: bold">{text}分</span>
+          } else {
+            return '- -'
+          }
+        },
         ellipsis: true
       }, {
-        title: '发布时间',
-        dataIndex: 'createDate',
+        title: '风险等级',
+        dataIndex: 'riskLevel',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            let color = ''
+            switch (text) {
+              case '保守型':
+                color = 'blue'
+                break
+              case '稳健型':
+                color = 'green'
+                break
+              case '平衡型':
+                color = 'orange'
+                break
+              case '成长型':
+                color = 'volcano'
+                break
+              case '积极型':
+                color = 'red'
+                break
+              default:
+                color = 'default'
+            }
+            return <a-tag color={color}>{text}</a-tag>
+          } else {
+            return '- -'
+          }
+        },
+        ellipsis: true
+      }, {
+        title: '风险等级代码',
+        dataIndex: 'riskLevelCode',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return <a-tag>{text.toUpperCase()}</a-tag>
+          } else {
+            return '- -'
+          }
+        },
+        ellipsis: true
+      }, {
+        title: '答题时间',
+        dataIndex: 'answerTime',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -150,23 +209,22 @@ export default {
         },
         ellipsis: true
       }, {
-        title: '消息类型',
-        dataIndex: 'type',
+        title: '状态',
+        dataIndex: 'status',
         customRender: (text, row, index) => {
           switch (text) {
-            case 1:
-              return <a-tag>系统公告</a-tag>
-            case 2:
-              return <a-tag>活动通知</a-tag>
-            case 3:
-              return <a-tag>紧急消息</a-tag>
+            case '1':
+              return <a-tag color="green">有效</a-tag>
+            case '0':
+              return <a-tag color="red">无效</a-tag>
             default:
               return '- -'
           }
-        }
+        },
+        ellipsis: true
       }, {
-        title: '上传人',
-        dataIndex: 'publisher',
+        title: '创建时间',
+        dataIndex: 'createdAt',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -175,10 +233,6 @@ export default {
           }
         },
         ellipsis: true
-      }, {
-        title: '操作',
-        dataIndex: 'operation',
-        scopedSlots: {customRender: 'operation'}
       }]
     }
   },
@@ -200,7 +254,7 @@ export default {
     },
     handleBulletinAddSuccess () {
       this.bulletinAdd.visiable = false
-      this.$message.success('新增公告成功')
+      this.$message.success('新增答题记录成功')
       this.search()
     },
     edit (record) {
@@ -212,7 +266,7 @@ export default {
     },
     handleBulletinEditSuccess () {
       this.bulletinEdit.visiable = false
-      this.$message.success('修改公告成功')
+      this.$message.success('修改答题记录成功')
       this.search()
     },
     handleDeptChange (value) {
@@ -234,7 +288,7 @@ export default {
         centered: true,
         onOk () {
           let ids = that.selectedRowKeys.join(',')
-          that.$delete('/business/bulletin-info/' + ids).then(() => {
+          that.$delete('/business/risk-assessment-answer/' + ids).then(() => {
             that.$message.success('删除成功')
             that.selectedRowKeys = []
             that.search()
@@ -304,7 +358,7 @@ export default {
         params.size = this.pagination.defaultPageSize
         params.current = this.pagination.defaultCurrent
       }
-      this.$get('/business/bulletin-info/page', {
+      this.$get('/business/risk-assessment-answer/page', {
         ...params
       }).then((r) => {
         let data = r.data.data

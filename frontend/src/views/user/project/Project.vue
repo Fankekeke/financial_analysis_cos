@@ -7,6 +7,14 @@
           <div :class="advanced ? null: 'fold'">
             <a-col :md="6" :sm="24">
               <a-form-item
+                label="产品名称"
+                :labelCol="{span: 5}"
+                :wrapperCol="{span: 18, offset: 1}">
+                <a-input v-model="queryParams.assetName"/>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
+              <a-form-item
                 label="用户名"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
@@ -23,7 +31,7 @@
     </div>
     <div>
       <div class="operator">
-<!--        <a-button type="primary" ghost @click="add">新增</a-button>-->
+        <a-button type="primary" ghost @click="add">新增</a-button>
         <a-button @click="batchDelete">删除</a-button>
 <!--        <a-button @click="batchDelete1">删除</a-button>-->
       </div>
@@ -61,9 +69,75 @@
         </template>
         <template slot="operation" slot-scope="text, record">
           <a-icon type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="edit(record)" title="修 改"></a-icon>
+          <a-icon type="eye" theme="twoTone" twoToneColor="#52c41a" @click="showDetail(record)" style="margin-left: 8px" title="查看详情"></a-icon>
         </template>
       </a-table>
     </div>
+    <!-- 添加详情模态框 -->
+    <a-modal v-model="detailVisible" title="项目详情" :footer="null" @cancel="closeDetail" width="600px">
+      <a-card :bordered="false" style="box-shadow: 0 2px 8px rgba(0,0,0,0.1)">
+        <!-- 卡片头部 -->
+        <div style="display: flex; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #e8e8e8; margin-bottom: 24px;">
+          <a-icon type="appstore" theme="twoTone" twoToneColor="#1890ff" style="font-size: 24px; margin-right: 12px;"/>
+          <div>
+            <h3 style="margin: 0; color: #1890ff; font-weight: 600;">{{ detailData.assetName || '未命名项目' }}</h3>
+          </div>
+        </div>
+
+        <!-- 资产价值信息 -->
+        <div style="margin-bottom: 24px;">
+          <h4 style="margin: 0 0 16px 0; color: #333; font-weight: 600; display: flex; align-items: center;">
+            <a-icon type="dollar" style="color: #d4380d; margin-right: 8px;"/>
+            成本分析
+          </h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; background: #f7f8fa; padding: 16px; border-radius: 8px;">
+            <div style="text-align: center; padding: 12px; background: white; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+              <div style="color: #999; font-size: 14px; margin-bottom: 4px;">购买价格</div>
+              <div style="font-size: 18px; font-weight: bold; color: #d4380d;">¥{{ parseFloat(detailData.purchasePrice || 0).toFixed(2) }}</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: white; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+              <div style="color: #999; font-size: 14px; margin-bottom: 4px;">日均成本</div>
+              <div style="font-size: 18px; font-weight: bold; color: #fa8c16;">¥{{ getDailyCost().toFixed(2) }}</div>
+            </div>
+          </div>
+
+          <!-- 使用天数 -->
+          <div style="margin-top: 16px; text-align: center;">
+            <span style="color: #999; font-size: 14px;">已使用：</span>
+            <span style="font-weight: bold; color: #1890ff;">
+          {{ getHoldingDays() }} 天
+        </span>
+          </div>
+        </div>
+
+        <!-- 基本信息 -->
+        <div style="margin-bottom: 24px;">
+          <h4 style="margin: 0 0 16px 0; color: #333; font-weight: 600; display: flex; align-items: center;">
+            <a-icon type="info-circle" style="color: #1890ff; margin-right: 8px;"/>
+            基本信息
+          </h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div style="padding: 12px; background: #e6f7ff; border: 1px solid #91d5ff; border-radius: 6px;">
+              <div style="color: #999; font-size: 14px; margin-bottom: 4px;">购买时间</div>
+              <div style="font-weight: bold;">{{ detailData.purchaseDate || '- -' }}</div>
+            </div>
+            <div style="padding: 12px; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px;">
+              <div style="color: #999; font-size: 14px; margin-bottom: 4px;">用户名</div>
+              <div style="font-weight: bold;">{{ detailData.userName || '- -' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 备注 -->
+        <div v-if="detailData.remark" style="margin-bottom: 16px;">
+          <h4 style="margin: 0 0 16px 0; color: #333; font-weight: 600; display: flex; align-items: center;">
+            <a-icon type="message" style="color: #999; margin-right: 8px;"/>
+            备注说明
+          </h4>
+          <a-alert type="info" :message="detailData.remark" banner style="border-radius: 6px;"/>
+        </div>
+      </a-card>
+    </a-modal>
     <bulletin-add
       v-if="bulletinAdd.visiable"
       @close="handleBulletinAddClose"
@@ -81,8 +155,8 @@
 
 <script>
 import RangeDate from '@/components/datetime/RangeDate'
-import BulletinAdd from './CategoriesAdd.vue'
-import BulletinEdit from './CategoriesEdit.vue'
+import BulletinAdd from './ProjectAdd.vue'
+import BulletinEdit from './ProjectEdit.vue'
 import {mapState} from 'vuex'
 import moment from 'moment'
 moment.locale('zh-cn')
@@ -114,7 +188,9 @@ export default {
         showSizeChanger: true,
         showTotal: (total, range) => `显示 ${range[0]} ~ ${range[1]} 条记录，共 ${total} 条记录`
       },
-      userList: []
+      userList: [],
+      detailVisible: false,
+      detailData: {}
     }
   },
   computed: {
@@ -123,35 +199,74 @@ export default {
     }),
     columns () {
       return [{
-        title: '分类名称',
-        dataIndex: 'name',
+        title: '项目名称',
+        dataIndex: 'assetName',
         ellipsis: true,
         customRender: (text, row, index) => {
           if (text !== null && text !== '') {
             return text
           } else {
-            return <span style="color: #999">主分类</span>
+            return '- -'
           }
         }
       }, {
-        title: '分类类型',
-        dataIndex: 'type',
+        title: '购买价格',
+        dataIndex: 'purchasePrice',
         ellipsis: true,
         customRender: (text, row, index) => {
-          if (text === '收入') {
-            return <a-tag color="green">收入</a-tag>
-          } else if (text === '支出') {
-            return <a-tag color="red">支出</a-tag>
+          if (text !== null) {
+            return `¥${parseFloat(text).toFixed(2)}`
           } else {
             return '- -'
           }
         }
       }, {
-        title: '用户名',
-        dataIndex: 'userName',
+        title: '购买时间',
+        dataIndex: 'purchaseDate',
         ellipsis: true,
         customRender: (text, row, index) => {
           if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '使用天数',
+        ellipsis: true,
+        customRender: (text, row, index) => {
+          if (row.purchaseDate) {
+            const today = moment()
+            const purchaseDate = moment(row.purchaseDate)
+            const days = today.diff(purchaseDate, 'days')
+            return `${days} 天`
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '日均成本',
+        ellipsis: true,
+        customRender: (text, row, index) => {
+          if (row.purchasePrice && row.purchaseDate) {
+            const purchaseDate = moment(row.purchaseDate)
+            const days = moment().diff(purchaseDate, 'days')
+            if (days > 0) {
+              const dailyCost = parseFloat(row.purchasePrice) / days
+              return `¥${dailyCost.toFixed(2)}`
+            } else {
+              return `¥${parseFloat(row.purchasePrice).toFixed(2)}`
+            }
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '备注',
+        dataIndex: 'remark',
+        ellipsis: true,
+        customRender: (text, row, index) => {
+          if (text !== null && text !== '') {
             return text
           } else {
             return '- -'
@@ -170,6 +285,17 @@ export default {
           </a-popover>
         }
       }, {
+        title: '用户名',
+        dataIndex: 'userName',
+        ellipsis: true,
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
         title: '操作',
         dataIndex: 'operation',
         ellipsis: true,
@@ -181,6 +307,26 @@ export default {
     this.fetch()
   },
   methods: {
+    showDetail (record) {
+      this.detailData = { ...record }
+      this.detailVisible = true
+    },
+    closeDetail () {
+      this.detailVisible = false
+      this.detailData = {}
+    },
+    getHoldingDays() {
+      if (!this.detailData.purchaseDate) return 0
+      const purchaseDate = moment(this.detailData.purchaseDate)
+      const today = moment()
+      return today.diff(purchaseDate, 'days')
+    },
+    getDailyCost() {
+      if (!this.detailData.purchasePrice || !this.detailData.purchaseDate) return 0
+      const days = this.getHoldingDays()
+      if (days === 0) return parseFloat(this.detailData.purchasePrice)
+      return parseFloat(this.detailData.purchasePrice) / days
+    },
     onSelectChange (selectedRowKeys) {
       this.selectedRowKeys = selectedRowKeys
     },
@@ -195,7 +341,7 @@ export default {
     },
     handleBulletinAddSuccess () {
       this.bulletinAdd.visiable = false
-      this.$message.success('新增标签成功')
+      this.$message.success('新增产品成功')
       this.search()
     },
     edit (record) {
@@ -207,7 +353,7 @@ export default {
     },
     handleBulletinEditSuccess () {
       this.bulletinEdit.visiable = false
-      this.$message.success('修改标签成功')
+      this.$message.success('修改产品成功')
       this.search()
     },
     handleDeptChange (value) {
@@ -229,7 +375,7 @@ export default {
         centered: true,
         onOk () {
           let ids = that.selectedRowKeys.join(',')
-          that.$delete('/business/categories/' + ids).then(() => {
+          that.$delete('/business/project-assets/' + ids).then(() => {
             that.$message.success('删除成功')
             that.selectedRowKeys = []
             that.search()
@@ -299,7 +445,8 @@ export default {
         params.size = this.pagination.defaultPageSize
         params.current = this.pagination.defaultCurrent
       }
-      this.$get('/business/categories/page', {
+      params.userId = this.currentUser.userId
+      this.$get('/business/project-assets/page', {
         ...params
       }).then((r) => {
         let data = r.data.data

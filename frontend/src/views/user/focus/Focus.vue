@@ -12,7 +12,7 @@
             <div slot="title">
               <p>{{ item.collectUsername }}</p>
               <a-tag v-if="item.collectRoleFlag == 1" color="#48ad20">用户</a-tag>
-              <a-tag v-if="item.collectRoleFlag == 2" color="#2eabff">党员</a-tag>
+              <a-tag v-if="item.collectRoleFlag == 2" color="#2eabff">用户</a-tag>
             </div>
             <p slot="description">{{ item.content }}</p>
             <a-avatar shape="square" slot="avatar" :size="80" icon="user" :src="'http://127.0.0.1:9527/imagesWeb/' + item.collectAvatar" />

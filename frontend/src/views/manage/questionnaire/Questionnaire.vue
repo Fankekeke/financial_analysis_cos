@@ -89,8 +89,8 @@
 
 <script>
 import RangeDate from '@/components/datetime/RangeDate'
-import BulletinAdd from './BulletinAdd'
-import BulletinEdit from './BulletinEdit'
+import BulletinAdd from './QuestionnaireAdd.vue'
+import BulletinEdit from './QuestionnaireEdit.vue'
 import {mapState} from 'vuex'
 import moment from 'moment'
 moment.locale('zh-cn')
@@ -135,7 +135,7 @@ export default {
         dataIndex: 'title',
         ellipsis: true
       }, {
-        title: '公告内容',
+        title: '风险评估问卷内容',
         dataIndex: 'content',
         ellipsis: true
       }, {
@@ -155,7 +155,7 @@ export default {
         customRender: (text, row, index) => {
           switch (text) {
             case 1:
-              return <a-tag>系统公告</a-tag>
+              return <a-tag>系统风险评估问卷</a-tag>
             case 2:
               return <a-tag>活动通知</a-tag>
             case 3:
@@ -200,7 +200,7 @@ export default {
     },
     handleBulletinAddSuccess () {
       this.bulletinAdd.visiable = false
-      this.$message.success('新增公告成功')
+      this.$message.success('新增风险评估问卷成功')
       this.search()
     },
     edit (record) {
@@ -212,14 +212,14 @@ export default {
     },
     handleBulletinEditSuccess () {
       this.bulletinEdit.visiable = false
-      this.$message.success('修改公告成功')
+      this.$message.success('修改风险评估问卷成功')
       this.search()
     },
     handleDeptChange (value) {
       this.queryParams.deptId = value || ''
     },
     batchDelete1 () {
-      this.$get('/business/supplier-info/batchEditSupplierName').then((r) => {
+      this.$get('/business/risk-assessment-questionnaire').then((r) => {
       })
     },
     batchDelete () {
@@ -234,7 +234,7 @@ export default {
         centered: true,
         onOk () {
           let ids = that.selectedRowKeys.join(',')
-          that.$delete('/business/bulletin-info/' + ids).then(() => {
+          that.$delete('/business/risk-assessment-answer/' + ids).then(() => {
             that.$message.success('删除成功')
             that.selectedRowKeys = []
             that.search()
@@ -304,7 +304,7 @@ export default {
         params.size = this.pagination.defaultPageSize
         params.current = this.pagination.defaultCurrent
       }
-      this.$get('/business/bulletin-info/page', {
+      this.$get('/business/risk-assessment-answer/page', {
         ...params
       }).then((r) => {
         let data = r.data.data

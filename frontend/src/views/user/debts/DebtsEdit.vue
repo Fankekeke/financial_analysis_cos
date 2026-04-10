@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model="show" title="修改预算" @cancel="onClose" :width="650">
+  <a-modal v-model="show" title="修改负债" @cancel="onClose" :width="650">
     <template slot="footer">
       <a-button key="back" @click="onClose">
         取消
@@ -10,43 +10,76 @@
     </template>
     <a-form :form="form" layout="vertical">
       <a-row :gutter="20">
-<!--        <a-col :span="12">-->
-<!--          <a-form-item label='预算周期' v-bind="formItemLayout">-->
-<!--            <a-month-picker-->
-<!--              v-decorator="[-->
-<!--                'period',-->
-<!--                { rules: [{ required: true, message: '请选择预算周期!' }] }-->
-<!--              ]"              style="width: 100%"-->
-<!--              placeholder="选择年月"-->
-<!--              format="YYYY-MM"-->
-<!--            />-->
-<!--          </a-form-item>-->
-<!--        </a-col>-->
+
         <a-col :span="12">
-          <a-form-item label='预算限额' v-bind="formItemLayout">
+          <a-form-item label='负债名称' v-bind="formItemLayout">
+            <a-input v-decorator="[
+            'debtName',
+            { rules: [{ required: true, message: '请输入负债名称!' }] }
+            ]"/>
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label='总金额' v-bind="formItemLayout">
             <a-input-number
               v-decorator="[
-                'amountLimit',
-                { rules: [{ required: true, message: '请输入预算限额!' }] }
+                'totalAmount',
+                { rules: [{ required: true, message: '请输入总金额!' }] }
               ]"              style="width: 100%"
               :precision="2"
               :min="0"
-              placeholder="请输入预算金额"
+              placeholder="请输入总金额"
             />
           </a-form-item>
         </a-col>
-        <a-col :span="24">
-          <a-form-item label='预警阈值' v-bind="formItemLayout">
-            <a-slider
+        <a-col :span="12">
+          <a-form-item label='剩余金额' v-bind="formItemLayout">
+            <a-input-number
               v-decorator="[
-                'alertThreshold',
-                { rules: [{ required: true, message: '请选择预警阈值!' }], initialValue: 0.8 }
-              ]"
-              :marks="{0: '0%', 0.5: '50%', 0.8: '80%', 1: '100%'}"
-              :step="0.01"
+                'remainingAmount',
+                { rules: [{ required: true, message: '请输入剩余金额!' }] }
+              ]"              style="width: 100%"
+              :precision="2"
               :min="0"
-              :max="1"
+              placeholder="请输入剩余金额"
             />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label='年利率(%)' v-bind="formItemLayout">
+            <a-input-number
+              v-decorator="[
+                'interestRate',
+                { rules: [{ required: true, message: '请输入年利率!' }], initialValue: 0 }
+              ]"              style="width: 100%"
+              :precision="2"
+              :min="0"
+              :max="100"
+              placeholder="请输入年利率"
+            />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label='还款截止日' v-bind="formItemLayout">
+            <a-date-picker
+              v-decorator="[
+                'dueDate',
+                { rules: [{ required: true, message: '请选择还款截止日!' }] }
+              ]"              style="width: 100%"
+              placeholder="选择日期"
+              format="YYYY-MM-DD"
+            />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label='还款类型' v-bind="formItemLayout">
+            <a-select v-decorator="[
+              'debtType',
+              { rules: [{ required: true, message: '请选择还款类型!' }] }
+              ]">
+              <a-select-option value="单次">单次</a-select-option>
+              <a-select-option value="每月">每月</a-select-option>
+            </a-select>
           </a-form-item>
         </a-col>
         <a-col :span="24">
@@ -57,15 +90,16 @@
             ]"/>
           </a-form-item>
         </a-col>
+
       </a-row>
     </a-form>
   </a-modal>
 </template>
 
 <script>
+import {mapState} from 'vuex'
 import moment from 'moment'
 moment.locale('zh-cn')
-import {mapState} from 'vuex'
 function getBase64 (file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -133,23 +167,24 @@ export default {
     },
     setFormValues ({...bulletin}) {
       this.rowId = bulletin.id
-      let fields = ['title', 'amountLimit', 'alertThreshold', 'content']
+      let fields = ['debtName', 'totalAmount', 'remainingAmount', 'interestRate', 'dueDate', 'debtType', 'content']
       let obj = {}
       Object.keys(bulletin).forEach((key) => {
         if (key === 'images') {
           this.fileList = []
           this.imagesInit(bulletin['images'])
         }
+        if (key === 'rackUp' || key === 'type') {
+          bulletin[key] = bulletin[key].toString()
+        }
         if (fields.indexOf(key) !== -1) {
           this.form.getFieldDecorator(key)
           obj[key] = bulletin[key]
         }
       })
-      setTimeout(() => {
-        if (bulletin['period'] != null) {
-          obj['period'] = moment(bulletin['period'], 'YYYY-MM')
-        }
-      }, 500)
+      if (bulletin['dueDate'] != null) {
+        obj['dueDate'] = moment(bulletin['dueDate'])
+      }
       this.form.setFieldsValue(obj)
     },
     reset () {
@@ -173,11 +208,10 @@ export default {
       this.form.validateFields((err, values) => {
         values.id = this.rowId
         values.images = images.length > 0 ? images.join(',') : null
-        values.period = moment(values.period).format('YYYY-MM')
-        values.userId = this.currentUser.userId
+        values.dueDate =  moment(values.dueDate).format('YYYY-MM-DD')
         if (!err) {
           this.loading = true
-          this.$put('/business/budgets', {
+          this.$put('/business/debts', {
             ...values
           }).then((r) => {
             this.reset()

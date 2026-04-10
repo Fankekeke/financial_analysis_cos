@@ -10,75 +10,49 @@
     </template>
     <a-form :form="form" layout="vertical">
       <a-row :gutter="20">
+
         <a-col :span="12">
-          <a-form-item label='产品标题' v-bind="formItemLayout">
+          <a-form-item label='项目名称' v-bind="formItemLayout">
             <a-input v-decorator="[
-            'title',
-            { rules: [{ required: true, message: '请输入名称!' }] }
+            'assetName',
+            { rules: [{ required: true, message: '请输入项目名称!' }] }
             ]"/>
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item label='上传人' v-bind="formItemLayout">
-            <a-input v-decorator="[
-            'publisher',
-            { rules: [{ required: true, message: '请输入上传人!' }] }
-            ]"/>
+          <a-form-item label='购买价格' v-bind="formItemLayout">
+            <a-input-number
+              v-decorator="[
+                'purchasePrice',
+                { rules: [{ required: true, message: '请输入购买价格!' }] }
+              ]"              style="width: 100%"
+              :precision="2"
+              :min="0"
+              placeholder="请输入购买金额"
+            />
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item label='产品类型' v-bind="formItemLayout">
-            <a-select v-decorator="[
-              'type',
-              { rules: [{ required: true, message: '请输入产品类型!' }] }
-              ]">
-              <a-select-option value="1">系统产品</a-select-option>
-              <a-select-option value="2">活动通知</a-select-option>
-              <a-select-option value="3">紧急消息</a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='产品状态' v-bind="formItemLayout">
-            <a-select v-decorator="[
-              'rackUp',
-              { rules: [{ required: true, message: '请输入产品状态!' }] }
-              ]">
-              <a-select-option value="0">下架</a-select-option>
-              <a-select-option value="1">已发布</a-select-option>
-            </a-select>
+          <a-form-item label='购买时间' v-bind="formItemLayout">
+            <a-date-picker
+              v-decorator="[
+                'purchaseDate',
+                { rules: [{ required: true, message: '请选择购买时间!' }] }
+              ]"              style="width: 100%"
+              placeholder="选择日期"
+              format="YYYY-MM-DD"
+            />
           </a-form-item>
         </a-col>
         <a-col :span="24">
-          <a-form-item label='产品内容' v-bind="formItemLayout">
-            <a-textarea :rows="6" v-decorator="[
-            'content',
-             { rules: [{ required: true, message: '请输入名称!' }] }
+          <a-form-item label='备注' v-bind="formItemLayout">
+            <a-textarea :rows="4" v-decorator="[
+            'remark',
+             { rules: [{ required: false, message: '请输入备注!' }] }
             ]"/>
           </a-form-item>
         </a-col>
-        <a-col :span="24">
-          <a-form-item label='图册' v-bind="formItemLayout">
-            <a-upload
-              name="avatar"
-              action="http://127.0.0.1:9527/file/fileUpload/"
-              list-type="picture-card"
-              :file-list="fileList"
-              @preview="handlePreview"
-              @change="picHandleChange"
-            >
-              <div v-if="fileList.length < 8">
-                <a-icon type="plus" />
-                <div class="ant-upload-text">
-                  Upload
-                </div>
-              </div>
-            </a-upload>
-            <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
-              <img alt="example" style="width: 100%" :src="previewImage" />
-            </a-modal>
-          </a-form-item>
-        </a-col>
+
       </a-row>
     </a-form>
   </a-modal>
@@ -86,6 +60,7 @@
 
 <script>
 import {mapState} from 'vuex'
+import moment from "moment";
 function getBase64 (file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -153,7 +128,7 @@ export default {
     },
     setFormValues ({...bulletin}) {
       this.rowId = bulletin.id
-      let fields = ['title', 'content', 'publisher', 'rackUp', 'type']
+      let fields = ['assetName', 'purchasePrice', 'purchaseDate', 'remark']
       let obj = {}
       Object.keys(bulletin).forEach((key) => {
         if (key === 'images') {
@@ -168,6 +143,9 @@ export default {
           obj[key] = bulletin[key]
         }
       })
+      if (bulletin['purchaseDate'] != null) {
+        obj['purchaseDate'] = moment(bulletin['purchaseDate'])
+      }
       this.form.setFieldsValue(obj)
     },
     reset () {
@@ -191,6 +169,7 @@ export default {
       this.form.validateFields((err, values) => {
         values.id = this.rowId
         values.images = images.length > 0 ? images.join(',') : null
+        values.purchaseDate =  moment(values.purchaseDate).format('YYYY-MM-DD')
         if (!err) {
           this.loading = true
           this.$put('/business/project-assets', {
