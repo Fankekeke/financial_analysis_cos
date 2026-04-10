@@ -77,12 +77,12 @@ public class WealthManagementProduct implements Serializable {
     /**
      * 起息日期
      */
-    private LocalDate startDate;
+    private String startDate;
 
     /**
      * 到期日期
      */
-    private LocalDate endDate;
+    private String endDate;
 
     /**
      * 产品状态：1-募集期，2-运作中，3-已到期，0-下架
@@ -152,12 +152,12 @@ public class WealthManagementProduct implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime createdAt;
+    private String createdAt;
 
     /**
      * 更新时间
      */
-    private LocalDateTime updatedAt;
+    private String updatedAt;
 
 
 }

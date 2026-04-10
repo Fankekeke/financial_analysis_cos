@@ -33,6 +33,11 @@ public class RiskAssessmentOption implements Serializable {
     private Integer questionId;
 
     /**
+     * 问题内容
+     */
+    private String questionContent;
+
+    /**
      * 选项编码
      */
     private String optionCode;
@@ -45,7 +50,7 @@ public class RiskAssessmentOption implements Serializable {
     /**
      * 选项分值
      */
-    private Integer optionScore;
+    private String optionScore;
 
     /**
      * 排序
@@ -55,7 +60,7 @@ public class RiskAssessmentOption implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime createdAt;
+    private String createdAt;
 
 
 }

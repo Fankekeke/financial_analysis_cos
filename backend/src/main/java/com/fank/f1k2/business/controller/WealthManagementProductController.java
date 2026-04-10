@@ -40,6 +40,17 @@ public class WealthManagementProductController {
     }
 
     /**
+     * 推荐理财产品
+     *
+     * @param userId 用户ID
+     * @return 列表
+     */
+    @GetMapping("/recommendWealthManagementProduct")
+    public R recommendWealthManagementProduct(Integer userId) {
+        return R.ok(bulletinInfoService.recommendWealthManagementProduct(userId));
+    }
+
+    /**
      * 查询理财产品管理详情
      *
      * @param id 主键ID
@@ -68,6 +79,8 @@ public class WealthManagementProductController {
      */
     @PostMapping
     public R save(WealthManagementProduct addFrom) {
+        addFrom.setProductCode("PR-" + System.currentTimeMillis());
+        addFrom.setCreatedAt(DateUtil.formatDateTime(new Date()));
         return R.ok(bulletinInfoService.save(addFrom));
     }
 

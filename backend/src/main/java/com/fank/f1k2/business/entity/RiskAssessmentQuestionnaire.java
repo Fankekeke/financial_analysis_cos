@@ -2,6 +2,8 @@ package com.fank.f1k2.business.entity;
 
 import java.time.LocalDateTime;
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -85,12 +87,14 @@ public class RiskAssessmentQuestionnaire implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime createdAt;
+    private String createdAt;
 
     /**
      * 更新时间
      */
-    private LocalDateTime updatedAt;
+    private String updatedAt;
 
+    @TableField(exist = false)
+    private String optionStr;
 
 }

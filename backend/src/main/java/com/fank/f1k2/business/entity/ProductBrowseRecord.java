@@ -50,7 +50,7 @@ public class ProductBrowseRecord implements Serializable {
     /**
      * 浏览时间
      */
-    private LocalDateTime browseTime;
+    private String browseTime;
 
     /**
      * 浏览时长(秒)
@@ -65,7 +65,7 @@ public class ProductBrowseRecord implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime createdAt;
+    private String createdAt;
 
 
 }

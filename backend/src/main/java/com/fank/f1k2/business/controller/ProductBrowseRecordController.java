@@ -2,6 +2,9 @@ package com.fank.f1k2.business.controller;
 
 
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.fank.f1k2.business.entity.UserInfo;
+import com.fank.f1k2.business.service.IUserInfoService;
 import com.fank.f1k2.common.utils.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fank.f1k2.business.entity.ProductBrowseRecord;
@@ -10,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Wrapper;
 import java.util.Date;
 import java.util.List;
 
@@ -26,6 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductBrowseRecordController {
 
     private final IProductBrowseRecordService bulletinInfoService;
+
+    private final IUserInfoService userInfoService;
 
     /**
      * 分页获取理财产品浏览记录
@@ -68,6 +74,9 @@ public class ProductBrowseRecordController {
      */
     @PostMapping
     public R save(ProductBrowseRecord addFrom) {
+        UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, addFrom.getUserId()));
+        addFrom.setUserId(Long.valueOf(userInfo.getId()));
+        addFrom.setBrowseTime(DateUtil.formatDateTime(new Date()));
         return R.ok(bulletinInfoService.save(addFrom));
     }
 

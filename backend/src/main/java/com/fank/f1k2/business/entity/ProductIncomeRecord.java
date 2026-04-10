@@ -30,11 +30,6 @@ public class ProductIncomeRecord implements Serializable {
 
 
     /**
-     * 用户ID
-     */
-    private Long userId;
-
-    /**
      * 理财产品ID
      */
     private Integer productId;
@@ -67,7 +62,7 @@ public class ProductIncomeRecord implements Serializable {
     /**
      * 收益日期
      */
-    private LocalDate incomeDate;
+    private String incomeDate;
 
     /**
      * 收益类型：分红/利息/增值等
@@ -87,12 +82,12 @@ public class ProductIncomeRecord implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime createdAt;
+    private String createdAt;
 
     /**
      * 更新时间
      */
-    private LocalDateTime updatedAt;
+    private String updatedAt;
 
 
 }

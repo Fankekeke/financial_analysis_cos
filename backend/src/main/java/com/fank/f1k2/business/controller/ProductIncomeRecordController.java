@@ -68,6 +68,7 @@ public class ProductIncomeRecordController {
      */
     @PostMapping
     public R save(ProductIncomeRecord addFrom) {
+        addFrom.setCreatedAt(DateUtil.formatDateTime(new Date()));
         return R.ok(bulletinInfoService.save(addFrom));
     }
 

@@ -2,12 +2,21 @@ package com.fank.f1k2.business.controller;
 
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.fank.f1k2.business.entity.RiskAssessmentAnswerDetail;
+import com.fank.f1k2.business.entity.UserInfo;
+import com.fank.f1k2.business.service.IRiskAssessmentAnswerDetailService;
+import com.fank.f1k2.business.service.IUserInfoService;
+import com.fank.f1k2.common.exception.F1k2Exception;
 import com.fank.f1k2.common.utils.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fank.f1k2.business.entity.RiskAssessmentAnswer;
 import com.fank.f1k2.business.service.IRiskAssessmentAnswerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -26,6 +35,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class RiskAssessmentAnswerController {
 
     private final IRiskAssessmentAnswerService bulletinInfoService;
+
+    private final IUserInfoService userInfoService;
+
+    private final IRiskAssessmentAnswerDetailService riskAssessmentAnswerDetailService;
 
     /**
      * 分页获取用户风险评估答题记录
@@ -66,9 +79,43 @@ public class RiskAssessmentAnswerController {
      * @param addFrom 用户风险评估答题记录对象
      * @return 结果
      */
+    @Transactional(rollbackFor = Exception.class)
     @PostMapping
-    public R save(RiskAssessmentAnswer addFrom) {
+    public R save(RiskAssessmentAnswer addFrom) throws F1k2Exception {
+        UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, addFrom.getUserId()));
+        addFrom.setCreatedAt(DateUtil.formatDateTime(new Date()));
+        addFrom.setUserId(Long.valueOf(userInfo.getId()));
+        addFrom.setAnswerTime(DateUtil.formatDateTime(new Date()));
+        bulletinInfoService.remove(Wrappers.<RiskAssessmentAnswer>lambdaQuery().eq(RiskAssessmentAnswer::getUserId, addFrom.getUserId()));
+
+        if (StrUtil.isEmpty(addFrom.getDetailStr())) {
+            throw new F1k2Exception("请填写答案！");
+        }
+
+        List<RiskAssessmentAnswerDetail> riskAssessmentAnswerDetailList = JSONUtil.toList(addFrom.getDetailStr(), RiskAssessmentAnswerDetail.class);
+        for (RiskAssessmentAnswerDetail riskAssessmentAnswerDetail : riskAssessmentAnswerDetailList) {
+            riskAssessmentAnswerDetail.setAnswerId(addFrom.getId());
+            riskAssessmentAnswerDetailService.save(riskAssessmentAnswerDetail);
+        }
+
         return R.ok(bulletinInfoService.save(addFrom));
+    }
+
+    /**
+     * 查询用户风险评估答题记录
+     *
+     * @param userId 用户ID
+     * @return 列表
+     */
+    @GetMapping("/queryAssessmentAnswerByUser")
+    public R queryAssessmentAnswerByUser(Integer userId) {
+        UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, userId));
+        RiskAssessmentAnswer answer = bulletinInfoService.getOne(Wrappers.<RiskAssessmentAnswer>lambdaQuery().eq(RiskAssessmentAnswer::getUserId, userInfo.getId()));
+        if (answer != null) {
+            return R.ok(answer);
+        } else {
+            return R.ok();
+        }
     }
 
     /**
